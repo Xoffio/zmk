@@ -175,6 +175,7 @@ static void zmk_rgb_underglow_effect_swirl() {
 static void zmk_rgb_underglow_effect_status() {
     struct zmk_led_hsb hsb = state.color;
     hsb.b = 0;
+    hsb.h = zmk_keymap_highest_layer_active() * 20;
 
     // Turn off all LEDs
     for (int i = 0; i < STRIP_NUM_PIXELS; i++) {
@@ -529,7 +530,7 @@ ZMK_SUBSCRIPTION(rgb_underglow, zmk_usb_conn_state_changed);
 #endif
 
 // ----------------------------------------------------------------------------
-#if IS_ENABLED(CONFIG_ZMK_RGB_STATUS_LAYER)
+/*#if IS_ENABLED(CONFIG_ZMK_RGB_STATUS_LAYER)
 static int rgb_status_layer_event_listener(const zmk_event_t *eh) {
     struct zmk_led_hsb hsb = state.color;
     hsb.h = zmk_keymap_highest_layer_active() * 20;
@@ -541,7 +542,7 @@ static int rgb_status_layer_event_listener(const zmk_event_t *eh) {
 
 ZMK_LISTENER(rgb_status_layer, rgb_status_layer_event_listener);
 ZMK_SUBSCRIPTION(rgb_status_layer, zmk_layer_state_changed);
-#endif // IS_ENABLED(CONFIG_ZMK_RGB_STATUS_LAYER)
+#endif // IS_ENABLED(CONFIG_ZMK_RGB_STATUS_LAYER)*/
 
 // ----------------------------------------------------------------------------
 
