@@ -175,7 +175,6 @@ static void zmk_rgb_underglow_effect_swirl() {
 static void zmk_rgb_underglow_effect_status() {
     struct zmk_led_hsb hsb = state.color;
     hsb.b = 0;
-    hsb.h = zmk_keymap_highest_layer_active() * 20;
 
     // Turn off all LEDs
     for (int i = 0; i < STRIP_NUM_PIXELS; i++) {
@@ -185,7 +184,9 @@ static void zmk_rgb_underglow_effect_status() {
     // and turn on specific ones.
 
     #if IS_ENABLED(CONFIG_ZMK_RGB_STATUS_LAYER)
-        pixels[CONFIG_ZMK_RGB_STATUS_LAYER_N] = hsb_to_rgb(hsb_scale_min_max(state.color));
+        struct zmk_led_hsb layer_hsb = state.color;
+        layer_hsb.h = zmk_keymap_highest_layer_active() * 20;
+        pixels[CONFIG_ZMK_RGB_STATUS_LAYER_N] = hsb_to_rgb(hsb_scale_min_max(layer_hsb));
     #endif
 }
 
