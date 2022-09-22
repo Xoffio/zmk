@@ -25,6 +25,9 @@
 #include <zmk/events/activity_state_changed.h>
 #include <zmk/events/usb_conn_state_changed.h>
 
+#include <zmk/keymap.h>
+#include <zmk/events/layer_state_changed.h>
+
 LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 
 #define STRIP_LABEL DT_LABEL(DT_CHOSEN(zmk_underglow))
@@ -524,5 +527,22 @@ ZMK_SUBSCRIPTION(rgb_underglow, zmk_activity_state_changed);
 #if IS_ENABLED(CONFIG_ZMK_RGB_UNDERGLOW_AUTO_OFF_USB)
 ZMK_SUBSCRIPTION(rgb_underglow, zmk_usb_conn_state_changed);
 #endif
+
+// ----------------------------------------------------------------------------
+#if IS_ENABLED(CONFIG_ZMK_RGB_STATUS_LAYER)
+static int rgb_status_layer_event_listener(const zmk_event_t *eh) {
+    struct zmk_led_hsb hsb = state.color;
+    hsb.h = zmk_keymap_highest_layer_active() * 20;
+
+    //pixels[i] = hsb_to_rgb(hsb_scale_zero_max(hsb));
+    state.color = hsb;
+    
+}
+
+ZMK_LISTENER(rgb_status_layer, rgb_status_layer_event_listener);
+ZMK_SUBSCRIPTION(rgb_status_layer, zmk_layer_state_changed);
+#endif // IS_ENABLED(CONFIG_ZMK_RGB_STATUS_LAYER)
+
+// ----------------------------------------------------------------------------
 
 SYS_INIT(zmk_rgb_underglow_init, APPLICATION, CONFIG_APPLICATION_INIT_PRIORITY);
