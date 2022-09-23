@@ -260,6 +260,16 @@ config ZMK_RGB_STATUS_LAYER_N
 	default 0
 	depends on ZMK_RGB_STATUS_LAYER
 
+config ZMK_RGB_STATUS_BATTERY
+	bool "Change hue color of a led depending on layer number"
+	default y
+
+config ZMK_RGB_STATUS_BATTERY_N
+	int "LED number for the layer's status"
+	range 0 27
+	default 14
+	depends on ZMK_RGB_STATUS_BATTERY
+
 #ZMK_RGB_UNDERGLOW
 endif
 

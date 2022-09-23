@@ -192,6 +192,16 @@ static void zmk_rgb_underglow_effect_status() {
     #if IS_ENABLED(CONFIG_ZMK_RGB_STATUS_LAYER) 
         pixels[CONFIG_ZMK_RGB_STATUS_LAYER_N] = hsb_to_rgb(hsb_scale_min_max(layer_hsb));
     #endif
+
+    // ------- Turn on the battery status led -------
+    struct zmk_led_hsb battery_hsb = state.color;
+    #if CONFIG_ZMK_SPLIT_ROLE_CENTRAL
+        battery_hsb.h = zmk_battery_state_of_charge();
+    #endif
+
+    #if IS_ENABLED(CONFIG_ZMK_RGB_STATUS_BATTERY) 
+        pixels[CONFIG_ZMK_RGB_STATUS_BATTERY_N] = hsb_to_rgb(hsb_scale_min_max(battery_hsb));
+    #endif
 }
 
 static void zmk_rgb_underglow_tick(struct k_work *work) {
