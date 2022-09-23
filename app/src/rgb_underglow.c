@@ -183,7 +183,7 @@ static void zmk_rgb_underglow_effect_status() {
 
     // and turn on specific ones.
 
-    #if IS_ENABLED(CONFIG_ZMK_RGB_STATUS_LAYER)
+    #if IS_ENABLED(CONFIG_ZMK_RGB_STATUS_LAYER) && CONFIG_ZMK_SPLIT_ROLE_CENTRAL
         struct zmk_led_hsb layer_hsb = state.color;
         layer_hsb.h = zmk_keymap_highest_layer_active() * 20;
         pixels[CONFIG_ZMK_RGB_STATUS_LAYER_N] = hsb_to_rgb(hsb_scale_min_max(layer_hsb));
