@@ -28,6 +28,7 @@
 #include <zmk/keymap.h>
 #include <zmk/battery.h>
 #include <zmk/events/layer_state_changed.h>
+#include <zmk/events/keycode_state_changed.h>
 
 LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 
@@ -46,6 +47,7 @@ enum rgb_underglow_effect {
     UNDERGLOW_EFFECT_BREATHE,
     UNDERGLOW_EFFECT_SPECTRUM,
     UNDERGLOW_EFFECT_SWIRL,
+    UNDERGLOW_EFFECT_PRESS,
     UNDERGLOW_EFFECT_STATUS,
     UNDERGLOW_EFFECT_NUMBER // Used to track number of underglow effects
 };
@@ -56,6 +58,7 @@ struct rgb_underglow_state {
     uint8_t current_effect;
     uint16_t animation_step;
     bool on;
+    bool pressed;
 };
 
 static const struct device *led_strip;
@@ -173,6 +176,12 @@ static void zmk_rgb_underglow_effect_swirl() {
     state.animation_step = state.animation_step % HUE_MAX;
 }
 
+static void zmk_rgb_underglow_effect_presss() {
+    for (int i = 0; i < STRIP_NUM_PIXELS; i++) {
+        pixels[i] = hsb_to_rgb(hsb_scale_min_max(state.color));
+    }
+}
+
 static void zmk_rgb_underglow_effect_status() {
     struct zmk_led_hsb hsb = state.color;
     hsb.b = 0;
@@ -198,7 +207,7 @@ static void zmk_rgb_underglow_effect_status() {
     struct zmk_led_hsb battery_hsb = state.color;
     battery_hsb.h = zmk_battery_state_of_charge();
 
-    #if IS_ENABLED(CONFIG_ZMK_RGB_STATUS_BATTERY) 
+    #if IS_ENABLED(CONFIG_ZMK_RGB_STATUS_BATTERY)
         pixels[CONFIG_ZMK_RGB_STATUS_BATTERY_N] = hsb_to_rgb(hsb_scale_min_max(battery_hsb));
     #endif
 }
@@ -216,6 +225,9 @@ static void zmk_rgb_underglow_tick(struct k_work *work) {
         break;
     case UNDERGLOW_EFFECT_SWIRL:
         zmk_rgb_underglow_effect_swirl();
+        break;
+    case UNDERGLOW_EFFECT_PRESS:
+        zmk_rgb_underglow_effect_press();
         break;
     case UNDERGLOW_EFFECT_STATUS:
         zmk_rgb_underglow_effect_status();
@@ -351,6 +363,7 @@ int zmk_rgb_underglow_on() {
 #endif
 
     state.on = true;
+    state.pressed = true;
     state.animation_step = 0;
     k_timer_start(&underglow_tick, K_NO_WAIT, K_MSEC(50));
 
@@ -544,19 +557,20 @@ ZMK_SUBSCRIPTION(rgb_underglow, zmk_usb_conn_state_changed);
 #endif
 
 // ----------------------------------------------------------------------------
-/*#if IS_ENABLED(CONFIG_ZMK_RGB_STATUS_LAYER)
-static int rgb_status_layer_event_listener(const zmk_event_t *eh) {
+#if IS_ENABLED(CONFIG_ZMK_RGB_STATUS_PRESS)
+static int rgb_status_press_event_listener(const zmk_event_t *eh) {
     struct zmk_led_hsb hsb = state.color;
-    hsb.h = zmk_keymap_highest_layer_active() * 20;
+    hsb.h = abs(state.pressed - 1) * 20;
+    //hsb.b
 
     //pixels[i] = hsb_to_rgb(hsb_scale_zero_max(hsb));
     state.color = hsb;
     
 }
 
-ZMK_LISTENER(rgb_status_layer, rgb_status_layer_event_listener);
-ZMK_SUBSCRIPTION(rgb_status_layer, zmk_layer_state_changed);
-#endif // IS_ENABLED(CONFIG_ZMK_RGB_STATUS_LAYER)*/
+ZMK_LISTENER(rgb_status_press, rgb_status_press_event_listener);
+ZMK_SUBSCRIPTION(rgb_status_press, zmk_keycode_state_changed);
+#endif // IS_ENABLED(CONFIG_ZMK_RGB_STATUS_PRESS)
 
 // ----------------------------------------------------------------------------
 
