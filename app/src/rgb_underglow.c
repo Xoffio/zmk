@@ -28,7 +28,7 @@
 #include <zmk/keymap.h>
 #include <zmk/battery.h>
 #include <zmk/events/layer_state_changed.h>
-#include <zmk/events/keycode_state_changed.h>
+#include <zmk/events/activity_state_changed.h>
 
 LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 
@@ -569,7 +569,7 @@ static int rgb_status_press_event_listener(const zmk_event_t *eh) {
 }
 
 ZMK_LISTENER(rgb_status_press, rgb_status_press_event_listener);
-ZMK_SUBSCRIPTION(rgb_status_press, zmk_keycode_state_changed);
+ZMK_SUBSCRIPTION(rgb_status_press, zmk_activity_state_changed);
 //#endif // IS_ENABLED(CONFIG_ZMK_RGB_STATUS_LAYER)
 
 // ----------------------------------------------------------------------------
