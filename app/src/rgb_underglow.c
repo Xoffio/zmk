@@ -560,6 +560,7 @@ ZMK_SUBSCRIPTION(rgb_underglow, zmk_usb_conn_state_changed);
 //#if IS_ENABLED(CONFIG_ZMK_RGB_STATUS_LAYER)
 static int rgb_status_press_event_listener(const zmk_event_t *eh) {
     struct zmk_led_hsb hsb = state.color;
+    state.pressed = abs(state.pressed - 1);
     hsb.h = abs(state.pressed - 1) * 20;
     //hsb.b
 
